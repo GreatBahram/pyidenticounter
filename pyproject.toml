@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "pyidenticounter"
+version = "0.1.0"
+description = "Count the number of identifier inside your python modules (variable, function, method and class names)."
+authors = ["Bahram Aghaei <aghaee.bahram@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+pyicounter = 'pyidenticounter:main'
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
