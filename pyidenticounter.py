@@ -1,4 +1,5 @@
 import ast
+import sys
 from argparse import ArgumentParser
 from collections import defaultdict
 from pathlib import Path
@@ -11,8 +12,11 @@ class PyIdentifierCounter(ast.NodeVisitor):
     def check(self, files):
         for filename in files:
             self.filename = filename
-            tree = ast.parse(Path(filename).read_text())
-            self.visit(tree)
+            try:
+                tree = ast.parse(Path(filename).read_text())
+                self.visit(tree)
+            except SyntaxError:
+                print(f"Parsing of file failed: {filename}", file=sys.stderr)
 
     def visit_Assign(self, node: ast.Assign) -> None:
         for name in node.targets:
