@@ -16,7 +16,6 @@ pyicounter file1.py file2.py
 
 ## Road-map
 
-- [ ] Read source code from stdin using `--from-stdin`
-- [ ] Discover python files from a given directory or in the current working directory
-- [ ] Publish it to Github, using poetry
+- [X] Discover python files from a given directory
 - [ ] Add test cases, run with pytest
+- [ ] Publish it to Github, using poetry
