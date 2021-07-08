@@ -50,7 +50,7 @@ def get_python_files(
     paths: Union[Path, str], pattern: Pattern[str] = PYTHON_RE
 ) -> Iterator[Path]:
     """Generate all files that match with a given pattern."""
-    for entry in Path(paths).iterdir():
+    for entry in Path(paths).rglob("*"):
         if entry.is_file() and pattern.search(str(entry)):
             yield entry
 

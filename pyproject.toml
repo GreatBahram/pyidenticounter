@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyidenticounter"
-version = "0.1.0"
+version = "0.1.1"
 description = "Count the number of identifier inside your python modules (variable, function, method and class names)."
 authors = ["Bahram Aghaei <aghaee.bahram@gmail.com>"]
 license = "MIT"
