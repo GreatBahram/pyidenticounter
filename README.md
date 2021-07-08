@@ -17,5 +17,5 @@ pyicounter file1.py file2.py
 ## Road-map
 
 - [X] Discover python files from a given directory
-- [ ] Add test cases, run with pytest
+- [X] Add test cases, run with pytest
 - [ ] Publish it to Github, using poetry

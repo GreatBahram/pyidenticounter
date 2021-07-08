@@ -3,50 +3,47 @@ import re
 import sys
 from argparse import ArgumentParser
 from collections import defaultdict
+from enum import Enum
 from pathlib import Path
-from typing import Iterator, Pattern, Sized, Union
+from typing import Iterator, NamedTuple, Pattern, Sized, Union
 
 PYTHON_RE = re.compile(r"\.pyi?$")
 
 
-class PyIdentifierCounter(ast.NodeVisitor):
-    def __init__(self):
-        self.identifier_map = defaultdict(list)
+class IdentifierType(str, Enum):
+    VAR = "variable"
+    FUNC = "func_or_method"
+    CLASS = "class"
 
-    def check(self, files):
-        for filename in files:
-            self.filename = filename
-            try:
-                tree = ast.parse(Path(filename).read_text())
-                self.visit(tree)
-            except SyntaxError:
-                print(f"Parsing of file failed: {filename}", file=sys.stderr)
-                sys.exit(1)
+    def __str__(self) -> str:
+        return self.value
+
+
+class Report(NamedTuple):
+    name: str
+    type: IdentifierType
+    lineno: int
+
+
+class PyIdentifierCounter(ast.NodeVisitor):
+    def check(self, source_code):
+        self.identifiers = []
+        tree = ast.parse(source_code)
+        self.visit(tree)
+        return self.identifiers
 
     def visit_Assign(self, node: ast.Assign) -> None:
         for name in node.targets:
             if name := getattr(name, "id", None):
-                self.identifier_map[self.filename].append(
-                    (name, "variable", node.lineno)
-                )
+                self.identifiers.append(Report(name, IdentifierType.VAR, node.lineno))
 
     def visit_FunctionDef(self, node: ast.FunctionDef):
-        self.identifier_map[self.filename].append(
-            (node.name, "func_or_method", node.lineno)
-        )
+        self.identifiers.append(Report(node.name, IdentifierType.FUNC, node.lineno))
         self.generic_visit(node)  # walk through any nested functions
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
-        self.identifier_map[self.filename].append((node.name, "class", node.lineno))
+        self.identifiers.append(Report(node.name, IdentifierType.CLASS, node.lineno))
         self.generic_visit(node)  # walk through any nested classes
-
-    def report(self, verbose: bool = True):
-        for filename, identifiers in self.identifier_map.items():
-            if not verbose:
-                print(f"{filename}: {len(identifiers)}")
-                continue
-            for (name, type, lineno) in identifiers:
-                print(f"{filename}:{lineno}: {type} '{name}'")
 
 
 def get_python_files(
@@ -78,6 +75,28 @@ def empty_path(sources: Sized, msg: str, quiet: bool) -> None:
         sys.exit(0)
 
 
+def report(identifier_map, verbose: bool) -> None:
+    for filename, identifiers in identifier_map.items():
+        if not verbose:
+            print(f"{filename}: {len(identifiers)}")
+            continue
+        for (name, type, lineno) in identifiers:
+            print(f"{filename}:{lineno}: {type} '{name}'")
+
+
+def parse_files(sources: set[Path]) -> dict:
+    identifiers_map = defaultdict(list)
+    checker = PyIdentifierCounter()
+    for src in sources:
+        try:
+            source_code = Path(src).read_text()
+            identifiers_map[src] = checker.check(source_code)
+        except SyntaxError:
+            print(f"Parsing of file failed: {src}", file=sys.stderr)
+            sys.exit(1)
+    return identifiers_map
+
+
 def main():
     parser = ArgumentParser(description="Count identifiers in python source codes.")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -93,9 +112,8 @@ def main():
         "No Python files are present to be examined. Nothing to do 😴",
         args.quiet,
     )
-    checker = PyIdentifierCounter()
-    checker.check(sources)
-    checker.report(args.verbose)
+    identifiers_map = parse_files(sources)
+    report(identifiers_map, args.verbose)
 
 
 if __name__ == "__main__":
