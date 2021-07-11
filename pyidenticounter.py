@@ -83,13 +83,22 @@ def empty_path(sources: Sized, msg: str, quiet: bool) -> None:
         sys.exit(0)
 
 
-def report(identifier_map, verbose: bool) -> None:
+def report(identifier_map, verbose: int) -> None:
     for filename, identifiers in identifier_map.items():
-        if not verbose:
+        if verbose == 0:
             print(f"{filename}: {len(identifiers)}")
             continue
-        for (name, type, lineno) in identifiers:
-            print(f"{filename}:{lineno}: {type} '{name}'")
+        elif verbose == 1:
+            for path, identifiers in identifier_map.items():
+                # groupby identifiers
+                mapping = defaultdict(int)
+                for item in identifiers:
+                    mapping[item.type] += 1
+                for iden_type, freq in mapping.items():
+                    print(f"{path}:{iden_type}: {freq}")
+        else:
+            for (name, type, lineno) in identifiers:
+                print(f"{filename}:{lineno}: {type} '{name}'")
 
 
 def parse_files(sources: set[Path]) -> dict:
@@ -107,7 +116,7 @@ def parse_files(sources: set[Path]) -> dict:
 
 def main():
     parser = ArgumentParser(description="Count identifiers in python source codes.")
-    parser.add_argument("-v", "--verbose", action="store_true")
+    parser.add_argument("-v", "--verbose", action="count", default=0)
     parser.add_argument("-q", "--quiet", help="", default=False)
     parser.add_argument("paths", metavar="SRC", nargs="*", help="Python source files")
     args = parser.parse_args()
