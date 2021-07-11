@@ -4,6 +4,9 @@ version = "0.2.0"
 description = "Count the number of identifier inside your python modules (variable, function, method and class names)."
 authors = ["Bahram Aghaei <aghaee.bahram@gmail.com>"]
 license = "MIT"
+homepage = "https://github.com/GreatBahram/pyidenticounter"
+repository = "https://github.com/GreatBahram/pyidenticounter.git"
+keywords = ["static-analysis", "ast", "vocabulary",]
 
 [tool.poetry.dependencies]
 python = "^3.9"
