@@ -1,6 +1,10 @@
+
+
 # PyICounter
 
-A simple tool for counting the number of identifiers inside a given python module.
+A simple tool for counting the number of identifiers (a.k.a vocabulary) inside a given python module(s).
+
+It can extract function or method name, classes, and variables.
 
 ## Installation 
 
@@ -8,20 +12,63 @@ A simple tool for counting the number of identifiers inside a given python modul
 pip install pyidenticounter
 ```
 
-## Examples
+## Usage
+
+```python
+# example.py
+myvar1 = 12
+myvar2: str = ''
+
+
+def func1(*args):
+    age = 10
+    return None
+
+
+def func2():
+    def func3():
+        pass
+    pass
+
+
+class Person:
+    def get_full_name(self):
+        pass
+    class Meta:
+        model = Person
+```
+
+* You can simply run the program by passing a couple python files or a directory to `pyicounter` and it'll find all `*.py` and `*.pyi` files for you.
 
 ```shell
-pyicounter file1.py file2.py
+$ pyicounter example.py
+example.py: 10 # it shows we defined 10 vocabulary inside this module
 
-# or you can run it on a directory and it will find all python files
+$ pyicounter example.py -v # there are three verbosity mode
+example.py:variable: 4
+example.py:func_or_method: 4
+example.py:class: 2
 
-pyicounter .
+$ pyicounter example.py -vv # gives the most detailed report
+example.py:4: variable 'myvar1'
+example.py:5: variable 'myvar2'
+example.py:8: func_or_method 'func1'
+example.py:9: variable 'age'
+example.py:13: func_or_method 'func2'
+example.py:14: func_or_method 'func3'
+example.py:19: class 'Person'
+example.py:20: func_or_method 'get_full_name'
+example.py:22: class 'Meta'
+example.py:23: variable 'model'
 ```
 
 ## Road-map
 
 - [X] Discover python files from a given directory
 - [X] Add test cases, run with pytest
-- [X] Publish it to Github, using poetry
+- [X] Publish it to PyPi, using poetry
 - [X] Find variable names with annotations
-- [ ] Run tests using Github Actions
+- [X] Run tests using Github Actions
+- [x] Update the readme file to show use cases and feature
+- [ ] Publish to PyPI using Github actions
+- [ ] Add a feature to extract argument names of classes, functions and for loops.
