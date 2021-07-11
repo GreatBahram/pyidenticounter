@@ -23,5 +23,5 @@ pyicounter .
 - [X] Discover python files from a given directory
 - [X] Add test cases, run with pytest
 - [X] Publish it to Github, using poetry
-- [ ] Find variable names with annotations
+- [X] Find variable names with annotations
 - [ ] Run tests using Github Actions
