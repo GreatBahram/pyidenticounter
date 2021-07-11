@@ -82,3 +82,24 @@ def test_func_class_names():
         report.name for report in identifiers if report.type == IdentifierType.CLASS
     ]
     assert actual == expected
+
+
+def test_func_variable_with_annotations():
+    code = dedent(
+        """\
+        class Person:
+            age: int
+            age_with_default: int = 18
+
+
+        name: str
+        name_with_value: str = 'Micheal'
+        """
+    )
+    checker = PyIdentifierCounter()
+    identifiers = checker.check(code)
+    expected = ["age", "age_with_default", "name", "name_with_value"]
+    actual = [
+        report.name for report in identifiers if report.type == IdentifierType.VAR
+    ]
+    assert actual == expected

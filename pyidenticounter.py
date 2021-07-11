@@ -45,6 +45,14 @@ class PyIdentifierCounter(ast.NodeVisitor):
         self.identifiers.append(Report(node.name, IdentifierType.CLASS, node.lineno))
         self.generic_visit(node)  # walk through any nested classes
 
+    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
+        if isinstance(node.target, ast.Name):
+            if name := getattr(node.target, "id", None):
+                self.identifiers.append(
+                    Report(name, IdentifierType.VAR, node.target.lineno)
+                )
+        self.generic_visit(node)
+
 
 def get_python_files(
     paths: Union[Path, str], pattern: Pattern[str] = PYTHON_RE
