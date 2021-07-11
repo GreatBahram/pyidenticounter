@@ -34,4 +34,4 @@ jobs:
       - name: Install the current version
         run: python -m poetry install
       - name: Run test cases
-        name: python -m pytest --verbose --cov
+        run: python -m pytest --verbose --cov
