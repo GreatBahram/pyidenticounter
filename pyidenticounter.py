@@ -14,6 +14,7 @@ class IdentifierType(str, Enum):
     VAR = "variable"
     FUNC = "func_or_method"
     CLASS = "class"
+    ARG = "arg"
 
     def __str__(self) -> str:
         return self.value
@@ -39,6 +40,18 @@ class PyIdentifierCounter(ast.NodeVisitor):
 
     def visit_FunctionDef(self, node: ast.FunctionDef):
         self.identifiers.append(Report(node.name, IdentifierType.FUNC, node.lineno))
+        for arg in node.args.args:
+            # currently, we ignore self variable
+            if arg.arg != "self":
+                self.identifiers.append(Report(arg.arg, IdentifierType.ARG, arg.lineno))
+        if node.args.vararg:
+            self.identifiers.append(
+                Report(node.args.vararg.arg, IdentifierType.ARG, arg.lineno)
+            )
+        if node.args.kwarg:
+            self.identifiers.append(
+                Report(node.args.kwarg.arg, IdentifierType.ARG, arg.lineno)
+            )
         self.generic_visit(node)  # walk through any nested functions
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
