@@ -46,11 +46,11 @@ class PyIdentifierCounter(ast.NodeVisitor):
                 self.identifiers.append(Report(arg.arg, IdentifierType.ARG, arg.lineno))
         if node.args.vararg:
             self.identifiers.append(
-                Report(node.args.vararg.arg, IdentifierType.ARG, arg.lineno)
+                Report(node.args.vararg.arg, IdentifierType.ARG, node.args.vararg.lineno)
             )
         if node.args.kwarg:
             self.identifiers.append(
-                Report(node.args.kwarg.arg, IdentifierType.ARG, arg.lineno)
+                Report(node.args.kwarg.arg, IdentifierType.ARG, node.args.kwarg.lineno)
             )
         self.generic_visit(node)  # walk through any nested functions
 

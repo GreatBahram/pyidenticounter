@@ -115,11 +115,19 @@ def test_func_or_method_args():
 
         def add(item_a: int, item_b: int):
             return item_a + item_b
+
+
+        def advanced_add(*numbers):
+            return sum(numbers)
+
+
+        def func3(*args, **kwargs):
+          pass
         """
     )
     checker = PyIdentifierCounter()
     identifiers = checker.check(code)
-    expected = ["name", "item_a", "item_b"]
+    expected = ["name", "item_a", "item_b", "numbers", "args", "kwargs"]
     actual = [
         report.name for report in identifiers if report.type == IdentifierType.ARG
     ]

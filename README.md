@@ -42,24 +42,26 @@ class Person:
 
 ```shell
 $ pyicounter example.py
-example.py: 10 # it shows we defined 10 vocabulary inside this module
+example.py: 11 # it shows we defined 10 vocabulary inside this module
 
 $ pyicounter example.py -v # there are three verbosity mode
 example.py:variable: 4
 example.py:func_or_method: 4
+example.py:arg: 1
 example.py:class: 2
 
 $ pyicounter example.py -vv # gives the most detailed report
-example.py:4: variable 'myvar1'
-example.py:5: variable 'myvar2'
-example.py:8: func_or_method 'func1'
-example.py:9: variable 'age'
-example.py:13: func_or_method 'func2'
-example.py:14: func_or_method 'func3'
-example.py:19: class 'Person'
-example.py:20: func_or_method 'get_full_name'
-example.py:22: class 'Meta'
-example.py:23: variable 'model'
+example.py:1: variable 'myvar1'
+example.py:2: variable 'myvar2'
+example.py:5: func_or_method 'func1'
+example.py:5: arg 'args'
+example.py:6: variable 'age'
+example.py:10: func_or_method 'func2'
+example.py:11: func_or_method 'func3'
+example.py:16: class 'Person'
+example.py:17: func_or_method 'get_full_name'
+example.py:19: class 'Meta'
+example.py:20: variable 'model'
 ```
 
 ## Road-map
@@ -71,4 +73,4 @@ example.py:23: variable 'model'
 - [X] Run tests using Github Actions
 - [x] Update the readme file to show use cases and feature
 - [ ] Publish to PyPI using Github actions
-- [ ] Add a feature to extract argument names of classes, functions and for loops.
+- [X] Add a feature to extract argument names of classes, functions and for loops.
