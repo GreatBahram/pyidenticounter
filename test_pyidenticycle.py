@@ -10,7 +10,7 @@ def test_variable_names():
 
         def greeting(name):
             print('Hello', name)
- 
+
         def second_greeting():
             age = 10
             name = 'Jack'
@@ -101,5 +101,26 @@ def test_func_variable_with_annotations():
     expected = ["age", "age_with_default", "name", "name_with_value"]
     actual = [
         report.name for report in identifiers if report.type == IdentifierType.VAR
+    ]
+    assert actual == expected
+
+
+def test_func_or_method_args():
+    code = dedent(
+        """\
+        class Person:
+            def upper(self, name):
+                return name.upper()
+
+
+        def add(item_a: int, item_b: int):
+            return item_a + item_b
+        """
+    )
+    checker = PyIdentifierCounter()
+    identifiers = checker.check(code)
+    expected = ["name", "item_a", "item_b"]
+    actual = [
+        report.name for report in identifiers if report.type == IdentifierType.ARG
     ]
     assert actual == expected
