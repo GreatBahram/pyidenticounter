@@ -72,5 +72,5 @@ example.py:20: variable 'model'
 - [X] Find variable names with annotations
 - [X] Run tests using Github Actions
 - [x] Update the readme file to show use cases and feature
-- [ ] Publish to PyPI using Github actions
 - [X] Add a feature to extract argument names of classes, functions and for loops.
+- [ ] Provide exclude option
