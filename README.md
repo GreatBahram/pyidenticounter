@@ -73,4 +73,4 @@ example.py:20: variable 'model'
 - [X] Run tests using Github Actions
 - [x] Update the readme file to show use cases and feature
 - [X] Add a feature to extract argument names of classes, functions and for loops.
-- [ ] Provide exclude option
+- [X] Provide exclude option
