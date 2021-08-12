@@ -1,11 +1,11 @@
 import ast
 import re
 import sys
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentTypeError
 from collections import defaultdict
 from enum import Enum
 from pathlib import Path
-from typing import Iterator, NamedTuple, Pattern, Sized, Union
+from typing import Iterator, NamedTuple, Optional, Pattern, Sized, Union
 
 PYTHON_RE = re.compile(r"\.pyi?$")
 
@@ -46,7 +46,9 @@ class PyIdentifierCounter(ast.NodeVisitor):
                 self.identifiers.append(Report(arg.arg, IdentifierType.ARG, arg.lineno))
         if node.args.vararg:
             self.identifiers.append(
-                Report(node.args.vararg.arg, IdentifierType.ARG, node.args.vararg.lineno)
+                Report(
+                    node.args.vararg.arg, IdentifierType.ARG, node.args.vararg.lineno
+                )
             )
         if node.args.kwarg:
             self.identifiers.append(
@@ -68,23 +70,40 @@ class PyIdentifierCounter(ast.NodeVisitor):
 
 
 def get_python_files(
-    paths: Union[Path, str], pattern: Pattern[str] = PYTHON_RE
+    paths: Union[Path, str],
+    pattern: Pattern[str] = PYTHON_RE,
+    exclude: Optional[Pattern] = None,
 ) -> Iterator[Path]:
     """Generate all files that match with a given pattern."""
     for entry in Path(paths).rglob("*"):
         if entry.is_file() and pattern.search(str(entry)):
+            if path_is_excluded(entry, exclude):
+                continue
             yield entry
 
 
-def get_sources(paths: list[Path], pattern: Pattern[str] = PYTHON_RE) -> list[str]:
+def path_is_excluded(path: Union[str, Path], exclude) -> bool:
+    match = exclude.search(str(path)) if exclude else None
+    return bool(match)
+
+
+def get_sources(
+    paths: list[Path],
+    pattern: Pattern[str] = PYTHON_RE,
+    exclude: Optional[Pattern] = None,
+) -> set[Path]:
     """Compute a set of files to be validated."""
     sources = set()
     for entry in paths:
         entry = Path(entry)
-        if entry.is_file() and pattern.search(str(entry)):
+        if (
+            entry.is_file()
+            and pattern.search(str(entry))
+            and not path_is_excluded(str(entry), exclude)
+        ):
             sources.add(entry)
         elif entry.is_dir():
-            sources.update(get_python_files(entry, pattern))
+            sources.update(get_python_files(entry, pattern, exclude))
     return sources
 
 
@@ -127,16 +146,30 @@ def parse_files(sources: set[Path]) -> dict:
     return identifiers_map
 
 
+def validate_regex_pattern(pattern: str) -> Pattern:
+    try:
+        return re.compile(pattern)
+    except re.error:
+        raise ArgumentTypeError("Invalid regex pattern") from None
+
+
 def main():
     parser = ArgumentParser(description="Count identifiers in python source codes.")
     parser.add_argument("-v", "--verbose", action="count", default=0)
     parser.add_argument("-q", "--quiet", help="", default=False)
+    parser.add_argument(
+        "-e",
+        "--exclude",
+        help="A regular expression that matches files and directories "
+        + "that should be excluded on recursive searches.",
+        type=validate_regex_pattern,
+    )
     parser.add_argument("paths", metavar="SRC", nargs="*", help="Python source files")
     args = parser.parse_args()
 
     if not args.paths:
         empty_path(args.paths, "No Path provided. Nothing to do 😴", args.quiet)
-    sources = get_sources(args.paths)
+    sources = get_sources(args.paths, exclude=args.exclude)
     empty_path(
         sources,
         "No Python files are present to be examined. Nothing to do 😴",
